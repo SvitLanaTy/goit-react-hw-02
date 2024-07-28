@@ -1,0 +1,11 @@
+.optionsBtn {
+  display: flex;
+  font-size: 20px;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.btn,
+.resetBtn {
+  padding: 10px;
+  border-radius: 5px;
+}
