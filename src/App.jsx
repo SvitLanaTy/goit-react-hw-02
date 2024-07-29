@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Description from "./components/Description/Description";
 import Options from "./components/Options/Options";
 import Section from "./components/Section/Section";
@@ -7,26 +7,31 @@ import Notification from "./components/Notification/Notification";
 import "./App.css";
 
 const App = () => {
-  const [isActiveReset, setReset] = useState(false);
-  const [feedbacks, setFeedbacks] = useState({
-    good: 0,
-    neutral: 0,
-    bad: 0,
+  const [feedbacks, setFeedbacks] = useState(() => {
+    const startFeedbacks = window.localStorage.getItem("feedbackValue");
+    return startFeedbacks
+      ? JSON.parse(startFeedbacks)
+      : {
+          good: 0,
+          neutral: 0,
+          bad: 0,
+        };
   });
 
-  // useEffect(() => {
-  //   localStorage.setItem("feedbackValue", feedbacks);
-  // }, [feedbacks]);
-
-  const toggleReset = () => {
-    setReset(!isActiveReset);
-  };
+  useEffect(() => {
+    window.localStorage.setItem("feedbackValue", JSON.stringify(feedbacks));
+  }, [feedbacks]);
 
   const updateFeedback = (feedbackType) => {
-    setFeedbacks({ ...feedbacks, [feedbackType]: feedbacks[feedbackType] + 1 });
+    setFeedbacks({
+      ...feedbacks,
+      [feedbackType]: feedbacks[feedbackType] + 1,
+    });
   };
 
-  const resetFeedback = () => setFeedbacks({ good: 0, neutral: 0, bad: 0 });
+  const resetFeedback = () => {
+    setFeedbacks({ good: 0, neutral: 0, bad: 0 });
+  };
 
   const totalFeedback = feedbacks.good + feedbacks.neutral + feedbacks.bad;
 
@@ -40,11 +45,9 @@ const App = () => {
         <Options
           updateFeedback={updateFeedback}
           totalFeedback={totalFeedback}
-          toggleReset={toggleReset}
           resetFeedback={resetFeedback}
         />
-
-        {totalFeedback > 0 && (
+        {totalFeedback > 0 ? (
           <Feedback
             good={feedbacks.good}
             neutral={feedbacks.neutral}
@@ -52,8 +55,9 @@ const App = () => {
             totalFeedback={totalFeedback}
             positiveFeedback={positiveFeedback}
           />
+        ) : (
+          <Notification />
         )}
-        {!isActiveReset && <Notification />}
       </Section>
     </>
   );
